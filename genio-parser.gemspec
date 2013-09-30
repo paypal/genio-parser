@@ -24,8 +24,8 @@ Gem::Specification.new do |spec|
   spec.version       = Genio::Parser::VERSION
   spec.authors       = ["PayPal"]
   spec.email         = ["DL-PP-Platform-Ruby-SDK@ebay.com"]
-  spec.description   = %q{Parse schema and generate common object}
-  spec.summary       = %q{Parse schema and generate common object}
+  spec.description   = %q{Parse schema and generates common object used by genio}
+  spec.summary       = %q{Parse schema and generates common object used by genio}
 
   spec.homepage      = "https://github.com/paypal/genio-parser"
   spec.license       = "Apache License, Version 2.0"
