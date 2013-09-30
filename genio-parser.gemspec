@@ -1,12 +1,12 @@
 #
 #   Copyright 2013 PayPal Inc.
-# 
+#
 #   Licensed under the Apache License, Version 2.0 (the "License");
 #   you may not use this file except in compliance with the License.
 #   You may obtain a copy of the License at
-# 
+#
 #       http://www.apache.org/licenses/LICENSE-2.0
-# 
+#
 #   Unless required by applicable law or agreed to in writing, software
 #   distributed under the License is distributed on an "AS IS" BASIS,
 #   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -22,12 +22,13 @@ require 'genio/parser/version'
 Gem::Specification.new do |spec|
   spec.name          = "genio-parser"
   spec.version       = Genio::Parser::VERSION
-  spec.authors       = ["siddick"]
-  spec.email         = ["mebramsha@paypal.com"]
-  spec.description   = %q{Parse different schema and generate common object}
-  spec.summary       = %q{Parse different schema and generate common object}
-  spec.homepage      = ""
-  spec.license       = "MIT"
+  spec.authors       = ["PayPal"]
+  spec.email         = ["DL-PP-Platform-Ruby-SDK@ebay.com"]
+  spec.description   = %q{Parse schema and generate common object}
+  spec.summary       = %q{Parse schema and generate common object}
+
+  spec.homepage      = "https://github.com/paypal/genio-parser"
+  spec.license       = "Apache License, Version 2.0"
 
   spec.files         = Dir["lib/**/*"] + Dir["data/*"] + [ "README.md", "LICENSE.txt" ]
   spec.executables   = spec.files.grep(%r{^bin/}) { |f| File.basename(f) }
