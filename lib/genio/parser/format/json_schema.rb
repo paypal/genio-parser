@@ -1,5 +1,6 @@
 require 'json'
 
+
 module Genio
   module Parser
     module Format
@@ -22,6 +23,13 @@ module Genio
           else
             files[filename] = class_name(filename)
             parse_file(filename)
+          end
+        rescue Errno::ENOENT => error
+          if force and data_types[class_name(filename)]
+            logger.error error.message
+            class_name(filename)
+          else
+            raise error
           end
         end
 
