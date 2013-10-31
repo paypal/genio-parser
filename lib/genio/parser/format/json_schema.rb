@@ -1,10 +1,13 @@
 require 'json'
 
+
 module Genio
   module Parser
     module Format
       class JsonSchema < Base
         include Logging
+
+        attr_accessor :current_schema
 
         # Load schema
         # == Example
@@ -13,12 +16,61 @@ module Genio
         def load(filename, force = false)
           if data_types[filename] || (!force and data_types[class_name(filename)])
             class_name(filename)
+          elsif filename =~ /#./ and self.current_schema
+            inline_schema(filename)
           elsif files[filename]
             files[filename]
           else
             files[filename] = class_name(filename)
             parse_file(filename)
           end
+        rescue Errno::ENOENT => error
+          if force and data_types[class_name(filename)]
+            logger.error error.message
+            class_name(filename)
+          else
+            raise error
+          end
+        end
+
+        def inline_schema(filename)
+          file, names  = filename.split("#", 2)
+          names = names.split("/").delete_if(&:empty?)
+
+          schema = self.current_schema
+          if file.present?
+            read_file(file) do |data|
+              schema = JSON.parse(data, :object_class => Types::Base, :max_nesting => 100)
+              store_schema(schema) do
+                get_inline_schema_klass(names, schema, filename)
+              end
+            end
+          else
+            get_inline_schema_klass(names, schema, filename)
+          end
+        end
+
+        def get_inline_schema_klass(names, schema, filename)
+          names.each do |name|
+            schema = schema[name] if schema
+          end
+
+          if schema
+            klass = class_name(class_name(names.join("_")))
+            data_types[klass] = {}
+            data_types[klass] = parse_object(schema)
+            klass
+          else
+            raise "Unable to find schema #{filename}"
+          end
+        end
+
+        def store_schema(schema)
+          backup = self.current_schema
+          self.current_schema = schema
+          yield
+        ensure
+          self.current_schema = backup
         end
 
         # Parse Given schema file and return class name
@@ -26,11 +78,13 @@ module Genio
           klass = class_name(filename)
           read_file(filename) do |data|
             data = JSON.parse(data, :object_class => Types::Base, :max_nesting => 100)
-            if data.type == "object" or data.properties or data.type.is_a? Array   # Check the type is object or not.
-              data_types[klass] = {}
-              data_types[klass] = parse_object(data)
-            elsif data.resources                          # Checkout the schema file contains the services or not
-              parse_resource(data)
+            store_schema(data) do
+              if data.type == "object" or data.properties or data.type.is_a? Array   # Check the type is object or not.
+                data_types[klass] = {}
+                data_types[klass] = parse_object(data)
+              elsif data.resources                          # Checkout the schema file contains the services or not
+                parse_resource(data)
+              end
             end
           end
           klass
@@ -175,7 +229,10 @@ module Genio
         #   class_name("credit-card") # return "CreditCard"
         #   class_name("/path/to/payment.json") # return "Payment"
         def class_name(name)
-          File.basename(name.to_s.gsub(/\#$/, "").gsub(/-/, "_"), ".json").camelcase
+          name, anchor = name.to_s.split("#", 2)
+          name = File.basename(name, ".json")
+          name = name + "_" + anchor if anchor.present?
+          name.gsub(/[^\w]/, "_").camelcase
         end
 
         # Fix file name format
