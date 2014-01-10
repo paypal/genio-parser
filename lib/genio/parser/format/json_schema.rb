@@ -79,11 +79,11 @@ module Genio
           read_file(filename) do |data|
             data = JSON.parse(data, :object_class => Types::Base, :max_nesting => 100)
             store_schema(data) do
-              if data.type == "object" or data.properties or data.type.is_a? Array   # Check the type is object or not.
+              if data.resources # discovery format
+                parse_resource(data)
+              else
                 data_types[klass] = {}
                 data_types[klass] = parse_object(data)
-              elsif data.resources                          # Checkout the schema file contains the services or not
-                parse_resource(data)
               end
             end
           end
