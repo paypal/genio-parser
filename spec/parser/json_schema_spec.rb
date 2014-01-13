@@ -52,6 +52,25 @@ describe 'Genio::Parser', :vcr => { :cassette_name => "default" } do
       @base.class_name("#/hello/world").should eql "HelloWorld"
     end
 
+    describe '#extends' do
+      it 'parse file' do
+        new_object = @base.parse_object(new_type({ 'type' => 'object', 'extends' => 'test.json' }))
+        new_object.extends.should eql 'Test'
+      end
+
+      it 'parse ref file' do
+        new_object = @base.parse_object(new_type({ 'type' => 'object', 'extends' => { '$ref' => 'test.json' } }))
+        new_object.extends.should eql 'Test'
+      end
+
+      it 'parse object' do
+        new_object = @base.parse_object(new_type({ 'type' => 'object', 'extends' => {
+          'properties' => { 'name' => { 'type' => 'string' } } } }))
+        new_object.extends.should be_nil
+        new_object.properties.name.type.should eql 'string'
+      end
+    end
+
     def new_type(options = {})
       options = { :type => options } if options.is_a? String
       Genio::Parser::Types::Base.new(options)

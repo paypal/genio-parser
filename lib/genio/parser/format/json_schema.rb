@@ -110,11 +110,19 @@ module Genio
           end
 
           # Load extends class.
-          if data.extends.is_a? String
-            data.extends = self.load(data.extends)
-          else
-            data.extends = nil
-          end
+          data.extends =
+            if data.extends.is_a? String
+              self.load(data.extends)
+            elsif data.extends.is_a? Hash
+              if data.extends["$ref"]
+                self.load(data.extends["$ref"])
+              else
+                properties.merge!(parse_object(data.extends).properties)
+                nil
+              end
+            else
+              data.extends = nil
+            end
 
           # Parse array type
           if data.items
