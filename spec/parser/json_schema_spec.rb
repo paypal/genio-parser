@@ -44,6 +44,11 @@ describe 'Genio::Parser', :vcr => { :cassette_name => "default" } do
       test_klass.properties['inline-type'].type.should eql "PropertiesObject"
     end
 
+    it 'should support oneOf' do
+      test_klass = @base.data_types.Test
+      test_klass.properties['draft4'].oneOf.map(&:type).should eql ['Test', 'string']
+    end
+
     it 'should generate valid class name' do
       @base.class_name("test.json").should eql "Test"
       @base.class_name("/path/to/test.json").should eql "Test"

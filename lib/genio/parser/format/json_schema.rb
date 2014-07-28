@@ -97,11 +97,13 @@ module Genio
           end
 
           properties = Types::Base.new
+          required_properties = data.required || []
 
           # Parse each properties
           if data.properties
             data.properties.each do |name, options|
               properties[name] = parse_property(name, options)
+              properties[name].required = true if required_properties.include? name
             end
           elsif data.type.is_a?(Array)
             data.type.each do |object|
@@ -123,6 +125,12 @@ module Genio
             else
               data.extends = nil
             end
+
+          ["oneOf", "anyOf", "allOf"].each do |name|
+            data[name] = data[name].map do |schema|
+              parse_property(name, schema)
+            end if data[name].is_a? Array
+          end
 
           # Parse array type
           if data.items
@@ -156,8 +164,11 @@ module Genio
             elsif data.items              # Parse array value type
               array_property = parse_property(name, data.items)
               array_property.type
-            else
+            elsif data.type
               data.type                   # Simple type
+            else
+              parse_object(data)
+              "object"
             end
           Types::Property.new(data)
         rescue => error
