@@ -164,11 +164,9 @@ module Genio
             elsif data.items              # Parse array value type
               array_property = parse_property(name, data.items)
               array_property.type
-            elsif data.type
-              data.type                   # Simple type
             else
-              parse_object(data)
-              "object"
+              data.merge!(parse_object(data))
+              data.type || "object"
             end
           Types::Property.new(data)
         rescue => error

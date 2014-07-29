@@ -19,9 +19,10 @@
       }
     },
     "draft4": {
+      "type": "object",
       "oneOf": [
         { "$ref": "test.json" },
-        { "type": "string" }
+        { "$ref": "#/properties/object" }
       ]
     },
     "inline-type": {

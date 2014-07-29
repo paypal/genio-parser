@@ -46,7 +46,7 @@ describe 'Genio::Parser', :vcr => { :cassette_name => "default" } do
 
     it 'should support oneOf' do
       test_klass = @base.data_types.Test
-      test_klass.properties['draft4'].oneOf.map(&:type).should eql ['Test', 'string']
+      test_klass.properties['draft4'].oneOf.map(&:type).should eql ['Test', 'PropertiesObject']
     end
 
     it 'should generate valid class name' do
