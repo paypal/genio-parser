@@ -97,7 +97,7 @@ module Genio
           end
 
           properties = Types::Base.new
-          required_properties = data.required || []
+          required_properties = data.required.is_a?(Array) ? data.required : []
 
           # Parse each properties
           if data.properties
@@ -107,7 +107,7 @@ module Genio
             end
           elsif data.type.is_a?(Array)
             data.type.each do |object|
-              properties.merge!(parse_object(object).properties)
+              properties.merge!(parse_object(object).properties) if object.is_a? Hash
             end
           end
 
@@ -157,8 +157,9 @@ module Genio
               data_types[klass_name] = parse_object(data)
               klass_name
             elsif data.type.is_a? Array
-              data.union_types = data.type.map do |type|
-                parse_object(type)
+              data.oneOf = data.type.map do |type|
+                type = Types::Base.new( "type" => type ) unless type.is_a? Hash
+                parse_object(type) || Types::Base.new( "type" => "self" )
               end
               "object"
             elsif data.items              # Parse array value type
