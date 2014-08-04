@@ -157,7 +157,8 @@ module Genio
               data_types[klass_name] = parse_object(data)
               klass_name
             elsif data.type.is_a? Array
-              data.union_types = data.type.map do |type|
+              data.oneOf = data.type.map do |type|
+                type = Types::Base.new( "type" => type ) unless type.is_a? Hash
                 parse_object(type)
               end
               "object"
