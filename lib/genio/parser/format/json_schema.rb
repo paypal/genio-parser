@@ -159,7 +159,7 @@ module Genio
             elsif data.type.is_a? Array
               data.oneOf = data.type.map do |type|
                 type = Types::Base.new( "type" => type ) unless type.is_a? Hash
-                parse_object(type)
+                parse_object(type) || Types::Base.new( "type" => "self" )
               end
               "object"
             elsif data.items              # Parse array value type
