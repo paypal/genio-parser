@@ -97,7 +97,7 @@ module Genio
           end
 
           properties = Types::Base.new
-          required_properties = data.required || []
+          required_properties = data.required.is_a?(Array) ? data.required : []
 
           # Parse each properties
           if data.properties
@@ -107,7 +107,7 @@ module Genio
             end
           elsif data.type.is_a?(Array)
             data.type.each do |object|
-              properties.merge!(parse_object(object).properties)
+              properties.merge!(parse_object(object).properties) if object.is_a? Hash
             end
           end
 
